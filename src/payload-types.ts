@@ -69,6 +69,9 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    videos: Video;
+    projects: Project;
+    pages: Page;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,17 +81,24 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    videos: VideosSelect<false> | VideosSelect<true>;
+    projects: ProjectsSelect<false> | ProjectsSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: string;
+    defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'site-settings': SiteSetting;
+  };
+  globalsSelect: {
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -122,7 +132,8 @@ export interface UserAuthOperations {
  * via the `definition` "users".
  */
 export interface User {
-  id: string;
+  id: number;
+  role: 'admin' | 'editor';
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -130,6 +141,7 @@ export interface User {
   resetPasswordExpiration?: string | null;
   salt?: string | null;
   hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
   loginAttempts?: number | null;
   lockUntil?: string | null;
   sessions?:
@@ -147,8 +159,53 @@ export interface User {
  * via the `definition` "media".
  */
 export interface Media {
-  id: string;
+  id: number;
   alt: string;
+  caption?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    medium?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    large?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "videos".
+ */
+export interface Video {
+  id: number;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -163,10 +220,393 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects".
+ */
+export interface Project {
+  id: number;
+  _order?: string | null;
+  title: string;
+  /**
+   * Otomatis dari judul kalau di kosongkan
+   */
+  slug?: string | null;
+  hero?: (number | null) | Media;
+  home?: {
+    /**
+     * Gambar di index home. Kosong = pakai hero.
+     */
+    cover?: (number | null) | Media;
+    size?: ('small' | 'medium' | 'large' | 'full') | null;
+    align?: ('left' | 'center' | 'right') | null;
+  };
+  /**
+   * Label bebas: Company, Role, Client, Location, dst
+   */
+  meta?:
+    | {
+        label: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  blocks?:
+    | (
+        | HeadingBlock
+        | TextBlock
+        | ImageBlock
+        | ImageTextBlock
+        | GalleryBlock
+        | VideoBlock
+        | LinkBlock
+        | QuoteBlock
+        | EmbedBlock
+        | ListBlock
+        | SpacerBlock
+        | TitleSlotBlock
+        | MetaSlotBlock
+      )[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeadingBlock".
+ */
+export interface HeadingBlock {
+  text: string;
+  level?: ('h2' | 'h3') | null;
+  /**
+   * Biarkan "default" kalau tidak perlu menimpa layout block ini.
+   */
+  layout?: {
+    width?: ('default' | 'narrow' | 'content' | 'wide' | 'full') | null;
+    spaceBefore?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    spaceAfter?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    motion?: ('default' | 'none' | 'reveal' | 'parallax') | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'heading';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TextBlock".
+ */
+export interface TextBlock {
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Biarkan "default" kalau tidak perlu menimpa layout block ini.
+   */
+  layout?: {
+    width?: ('default' | 'narrow' | 'content' | 'wide' | 'full') | null;
+    spaceBefore?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    spaceAfter?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    motion?: ('default' | 'none' | 'reveal' | 'parallax') | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'text';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageBlock".
+ */
+export interface ImageBlock {
+  media: number | Media;
+  caption?: string | null;
+  /**
+   * Biarkan "default" kalau tidak perlu menimpa layout block ini.
+   */
+  layout?: {
+    width?: ('default' | 'narrow' | 'content' | 'wide' | 'full') | null;
+    spaceBefore?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    spaceAfter?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    motion?: ('default' | 'none' | 'reveal' | 'parallax') | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'image';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageTextBlock".
+ */
+export interface ImageTextBlock {
+  media: number | Media;
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  imageSide?: ('left' | 'right') | null;
+  /**
+   * Biarkan "default" kalau tidak perlu menimpa layout block ini.
+   */
+  layout?: {
+    width?: ('default' | 'narrow' | 'content' | 'wide' | 'full') | null;
+    spaceBefore?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    spaceAfter?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    motion?: ('default' | 'none' | 'reveal' | 'parallax') | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'imageText';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock".
+ */
+export interface GalleryBlock {
+  variant?: ('grid-2' | 'grid-3' | 'staggered' | 'strip') | null;
+  images: (number | Media)[];
+  /**
+   * Biarkan "default" kalau tidak perlu menimpa layout block ini.
+   */
+  layout?: {
+    width?: ('default' | 'narrow' | 'content' | 'wide' | 'full') | null;
+    spaceBefore?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    spaceAfter?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    motion?: ('default' | 'none' | 'reveal' | 'parallax') | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'gallery';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoBlock".
+ */
+export interface VideoBlock {
+  provider: 'vimeo' | 'youtube' | 'file';
+  /**
+   * Tempel URL halaman videonya (vimeo.com/... atau youtube.com/...).
+   */
+  url?: string | null;
+  file?: (number | null) | Video;
+  caption?: string | null;
+  /**
+   * Biarkan "default" kalau tidak perlu menimpa layout block ini.
+   */
+  layout?: {
+    width?: ('default' | 'narrow' | 'content' | 'wide' | 'full') | null;
+    spaceBefore?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    spaceAfter?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    motion?: ('default' | 'none' | 'reveal' | 'parallax') | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'video';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LinkBlock".
+ */
+export interface LinkBlock {
+  label: string;
+  url: string;
+  newTab?: boolean | null;
+  /**
+   * Biarkan "default" kalau tidak perlu menimpa layout block ini.
+   */
+  layout?: {
+    width?: ('default' | 'narrow' | 'content' | 'wide' | 'full') | null;
+    spaceBefore?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    spaceAfter?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    motion?: ('default' | 'none' | 'reveal' | 'parallax') | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'link';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "QuoteBlock".
+ */
+export interface QuoteBlock {
+  text: string;
+  attribution?: string | null;
+  /**
+   * Biarkan "default" kalau tidak perlu menimpa layout block ini.
+   */
+  layout?: {
+    width?: ('default' | 'narrow' | 'content' | 'wide' | 'full') | null;
+    spaceBefore?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    spaceAfter?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    motion?: ('default' | 'none' | 'reveal' | 'parallax') | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'quote';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EmbedBlock".
+ */
+export interface EmbedBlock {
+  /**
+   * URL iframe (https). Host yang diizinkan: www.youtube-nocookie.com, player.vimeo.com, open.spotify.com, w.soundcloud.com, codepen.io
+   */
+  url: string;
+  /**
+   * Judul iframe untuk aksesibilitas.
+   */
+  title?: string | null;
+  aspect?: ('16-9' | '4-3' | '1-1' | '21-9') | null;
+  /**
+   * Biarkan "default" kalau tidak perlu menimpa layout block ini.
+   */
+  layout?: {
+    width?: ('default' | 'narrow' | 'content' | 'wide' | 'full') | null;
+    spaceBefore?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    spaceAfter?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    motion?: ('default' | 'none' | 'reveal' | 'parallax') | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'embed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ListBlock".
+ */
+export interface ListBlock {
+  style?: ('unordered' | 'ordered') | null;
+  items: {
+    text: string;
+    id?: string | null;
+  }[];
+  /**
+   * Biarkan "default" kalau tidak perlu menimpa layout block ini.
+   */
+  layout?: {
+    width?: ('default' | 'narrow' | 'content' | 'wide' | 'full') | null;
+    spaceBefore?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    spaceAfter?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    motion?: ('default' | 'none' | 'reveal' | 'parallax') | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'list';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SpacerBlock".
+ */
+export interface SpacerBlock {
+  size?: ('sm' | 'md' | 'lg' | 'xl') | null;
+  /**
+   * Biarkan "default" kalau tidak perlu menimpa layout block ini.
+   */
+  layout?: {
+    width?: ('default' | 'narrow' | 'content' | 'wide' | 'full') | null;
+    spaceBefore?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    spaceAfter?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    motion?: ('default' | 'none' | 'reveal' | 'parallax') | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'spacer';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TitleSlotBlock".
+ */
+export interface TitleSlotBlock {
+  /**
+   * Biarkan "default" kalau tidak perlu menimpa layout block ini.
+   */
+  layout?: {
+    width?: ('default' | 'narrow' | 'content' | 'wide' | 'full') | null;
+    spaceBefore?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    spaceAfter?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    motion?: ('default' | 'none' | 'reveal' | 'parallax') | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'titleSlot';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MetaSlotBlock".
+ */
+export interface MetaSlotBlock {
+  /**
+   * Biarkan "default" kalau tidak perlu menimpa layout block ini.
+   */
+  layout?: {
+    width?: ('default' | 'narrow' | 'content' | 'wide' | 'full') | null;
+    spaceBefore?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    spaceAfter?: ('default' | 'none' | 'sm' | 'md' | 'lg' | 'xl') | null;
+    motion?: ('default' | 'none' | 'reveal' | 'parallax') | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'metaSlot';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  title: string;
+  /**
+   * Otomatis dari judul kalau di kosongkan
+   */
+  slug?: string | null;
+  blocks?:
+    | (
+        | HeadingBlock
+        | TextBlock
+        | ImageBlock
+        | ImageTextBlock
+        | GalleryBlock
+        | VideoBlock
+        | LinkBlock
+        | QuoteBlock
+        | EmbedBlock
+        | ListBlock
+        | SpacerBlock
+        | TitleSlotBlock
+        | MetaSlotBlock
+      )[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: string;
+  id: number;
   key: string;
   data:
     | {
@@ -183,20 +623,32 @@ export interface PayloadKv {
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: string;
+  id: number;
   document?:
     | ({
         relationTo: 'users';
-        value: string | User;
+        value: number | User;
       } | null)
     | ({
         relationTo: 'media';
-        value: string | Media;
+        value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'videos';
+        value: number | Video;
+      } | null)
+    | ({
+        relationTo: 'projects';
+        value: number | Project;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
       } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -206,10 +658,10 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string;
+  id: number;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   key?: string | null;
   value?:
@@ -229,7 +681,7 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string;
+  id: number;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
@@ -240,6 +692,7 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  role?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -247,6 +700,7 @@ export interface UsersSelect<T extends boolean = true> {
   resetPasswordExpiration?: T;
   salt?: T;
   hash?: T;
+  resetPasswordRequestedAt?: T;
   loginAttempts?: T;
   lockUntil?: T;
   sessions?:
@@ -263,6 +717,7 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  caption?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -274,6 +729,367 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        medium?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        large?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "videos_select".
+ */
+export interface VideosSelect<T extends boolean = true> {
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects_select".
+ */
+export interface ProjectsSelect<T extends boolean = true> {
+  _order?: T;
+  title?: T;
+  slug?: T;
+  hero?: T;
+  home?:
+    | T
+    | {
+        cover?: T;
+        size?: T;
+        align?: T;
+      };
+  meta?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        id?: T;
+      };
+  blocks?:
+    | T
+    | {
+        heading?: T | HeadingBlockSelect<T>;
+        text?: T | TextBlockSelect<T>;
+        image?: T | ImageBlockSelect<T>;
+        imageText?: T | ImageTextBlockSelect<T>;
+        gallery?: T | GalleryBlockSelect<T>;
+        video?: T | VideoBlockSelect<T>;
+        link?: T | LinkBlockSelect<T>;
+        quote?: T | QuoteBlockSelect<T>;
+        embed?: T | EmbedBlockSelect<T>;
+        list?: T | ListBlockSelect<T>;
+        spacer?: T | SpacerBlockSelect<T>;
+        titleSlot?: T | TitleSlotBlockSelect<T>;
+        metaSlot?: T | MetaSlotBlockSelect<T>;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeadingBlock_select".
+ */
+export interface HeadingBlockSelect<T extends boolean = true> {
+  text?: T;
+  level?: T;
+  layout?:
+    | T
+    | {
+        width?: T;
+        spaceBefore?: T;
+        spaceAfter?: T;
+        motion?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TextBlock_select".
+ */
+export interface TextBlockSelect<T extends boolean = true> {
+  body?: T;
+  layout?:
+    | T
+    | {
+        width?: T;
+        spaceBefore?: T;
+        spaceAfter?: T;
+        motion?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageBlock_select".
+ */
+export interface ImageBlockSelect<T extends boolean = true> {
+  media?: T;
+  caption?: T;
+  layout?:
+    | T
+    | {
+        width?: T;
+        spaceBefore?: T;
+        spaceAfter?: T;
+        motion?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageTextBlock_select".
+ */
+export interface ImageTextBlockSelect<T extends boolean = true> {
+  media?: T;
+  body?: T;
+  imageSide?: T;
+  layout?:
+    | T
+    | {
+        width?: T;
+        spaceBefore?: T;
+        spaceAfter?: T;
+        motion?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock_select".
+ */
+export interface GalleryBlockSelect<T extends boolean = true> {
+  variant?: T;
+  images?: T;
+  layout?:
+    | T
+    | {
+        width?: T;
+        spaceBefore?: T;
+        spaceAfter?: T;
+        motion?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoBlock_select".
+ */
+export interface VideoBlockSelect<T extends boolean = true> {
+  provider?: T;
+  url?: T;
+  file?: T;
+  caption?: T;
+  layout?:
+    | T
+    | {
+        width?: T;
+        spaceBefore?: T;
+        spaceAfter?: T;
+        motion?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LinkBlock_select".
+ */
+export interface LinkBlockSelect<T extends boolean = true> {
+  label?: T;
+  url?: T;
+  newTab?: T;
+  layout?:
+    | T
+    | {
+        width?: T;
+        spaceBefore?: T;
+        spaceAfter?: T;
+        motion?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "QuoteBlock_select".
+ */
+export interface QuoteBlockSelect<T extends boolean = true> {
+  text?: T;
+  attribution?: T;
+  layout?:
+    | T
+    | {
+        width?: T;
+        spaceBefore?: T;
+        spaceAfter?: T;
+        motion?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EmbedBlock_select".
+ */
+export interface EmbedBlockSelect<T extends boolean = true> {
+  url?: T;
+  title?: T;
+  aspect?: T;
+  layout?:
+    | T
+    | {
+        width?: T;
+        spaceBefore?: T;
+        spaceAfter?: T;
+        motion?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ListBlock_select".
+ */
+export interface ListBlockSelect<T extends boolean = true> {
+  style?: T;
+  items?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  layout?:
+    | T
+    | {
+        width?: T;
+        spaceBefore?: T;
+        spaceAfter?: T;
+        motion?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SpacerBlock_select".
+ */
+export interface SpacerBlockSelect<T extends boolean = true> {
+  size?: T;
+  layout?:
+    | T
+    | {
+        width?: T;
+        spaceBefore?: T;
+        spaceAfter?: T;
+        motion?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TitleSlotBlock_select".
+ */
+export interface TitleSlotBlockSelect<T extends boolean = true> {
+  layout?:
+    | T
+    | {
+        width?: T;
+        spaceBefore?: T;
+        spaceAfter?: T;
+        motion?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MetaSlotBlock_select".
+ */
+export interface MetaSlotBlockSelect<T extends boolean = true> {
+  layout?:
+    | T
+    | {
+        width?: T;
+        spaceBefore?: T;
+        spaceAfter?: T;
+        motion?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  blocks?:
+    | T
+    | {
+        heading?: T | HeadingBlockSelect<T>;
+        text?: T | TextBlockSelect<T>;
+        image?: T | ImageBlockSelect<T>;
+        imageText?: T | ImageTextBlockSelect<T>;
+        gallery?: T | GalleryBlockSelect<T>;
+        video?: T | VideoBlockSelect<T>;
+        link?: T | LinkBlockSelect<T>;
+        quote?: T | QuoteBlockSelect<T>;
+        embed?: T | EmbedBlockSelect<T>;
+        list?: T | ListBlockSelect<T>;
+        spacer?: T | SpacerBlockSelect<T>;
+        titleSlot?: T | TitleSlotBlockSelect<T>;
+        metaSlot?: T | MetaSlotBlockSelect<T>;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -314,6 +1130,40 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  siteName: string;
+  navigation?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  siteName?: T;
+  navigation?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
