@@ -26,9 +26,19 @@ function Inline({ node }: { node: RichInline }) {
   }
 }
 
-export function RichParagraphs({ paragraphs }: { paragraphs: RichParagraph[] }) {
+const SIZE = {
+  base: 'text-base leading-relaxed md:text-lg',
+  small: 'text-sm leading-relaxed md:text-[0.95rem]',
+} as const
+
+type Props = {
+  paragraphs: RichParagraph[]
+  size?: keyof typeof SIZE
+}
+
+export function RichParagraphs({ paragraphs, size = 'base' }: Props) {
   return (
-    <div className="space-y-6 text-lg leading-relaxed md:text-xl">
+    <div className={`space-y-5 ${SIZE[size]}`}>
       {paragraphs.map((paragraph, i) => (
         <p key={i}>
           {paragraph.children.map((node, j) => (

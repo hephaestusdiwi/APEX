@@ -24,6 +24,8 @@ export type MediaAsset = {
   alt: string
   width: number
   height: number
+  focalX?: number
+  focalY?: number
 }
 
 export type RichInline =
@@ -60,6 +62,8 @@ export type ImageTextBlockData = BlockBase & {
   media: MediaAsset
   paragraphs: RichParagraph[]
   imageSide: 'left' | 'right'
+  includeMeta: boolean
+  meta: ProjectMetaItem[]
 }
 export type GalleryBlockData = BlockBase & {
   type: 'gallery'

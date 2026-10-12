@@ -1,3 +1,4 @@
+
 import type { CollectionConfig } from 'payload'
 import { adminOnly, publishedOrStaff, staffOnly } from '@/access'
 import { projectBlocks } from '../blocks'
@@ -7,27 +8,27 @@ import { use } from 'react'
 import { sign } from 'crypto'
 
 export const Projects: CollectionConfig = {
-    slug: 'projects',
-    orderable: true,
-    admin: {
-        useAsTitle: 'title',
-        defaultColumns: ['title', 'slug', '_status', 'updatedAt'],
-    },
-    versions: {
-        drafts: true,
-        maxPerDoc: 25,
-    },
-    access: {
-      read: publishedOrStaff,
-      create: staffOnly,
-      update: staffOnly,
-      delete: adminOnly,
-    },
-    fields: [
-        { name: 'title', type: 'text', required: true },
-        slugField(),
-        { name: 'hero', type: 'upload', relationTo: 'media' },
-            {
+  slug: 'projects',
+  orderable: true,
+  admin: {
+    useAsTitle: 'title',
+    defaultColumns: ['title', 'slug', '_status', 'updatedAt'],
+  },
+  versions: {
+    drafts: true,
+    maxPerDoc: 25,
+  },
+  access: {
+    read: publishedOrStaff,
+    create: staffOnly,
+    update: staffOnly,
+    delete: adminOnly,
+  },
+  fields: [
+    { name: 'title', type: 'text', required: true },
+    slugField(),
+    { name: 'hero', type: 'upload', relationTo: 'media' },
+    {
       name: 'home',
       type: 'group',
       label: 'Tampilan di Home',
@@ -36,7 +37,9 @@ export const Projects: CollectionConfig = {
           name: 'cover',
           type: 'upload',
           relationTo: 'media',
-          admin: { description: 'Gambar di index home. Kosong = pakai hero.' },
+          admin: {
+            description: 'Gambar di index home. Kosong = pakai hero.',
+          },
         },
         {
           type: 'row',
@@ -56,8 +59,13 @@ export const Projects: CollectionConfig = {
             {
               name: 'align',
               type: 'select',
-              defaultValue: 'left',
-              admin: { width: '50%' },
+              label: 'Posisi crop',
+              defaultValue: 'center',
+              admin: {
+                width: '50%',
+                description:
+                  'Bagian gambar yang dipertahankan saat di-crop. Center = ikuti focal point.',
+              },
               options: [
                 { label: 'Left', value: 'left' },
                 { label: 'Center', value: 'center' },
@@ -68,16 +76,23 @@ export const Projects: CollectionConfig = {
         },
       ],
     },
-        {
-            name: 'meta',
-            type: 'array',
-            label: { singular: 'Meta', plural: 'Meta'},
-            admin: { description: 'Label bebas: Company, Role, Client, Location, dst' },
-            fields: [
-                { name: 'label', type: 'text', required: true },
-                { name: 'value', type: 'text', required: true },
-            ],
-        },
-            { name: 'blocks', type: 'blocks', blocks: projectBlocks, validate: validateSlots },
-    ],
+    {
+      name: 'meta',
+      type: 'array',
+      label: { singular: 'Meta', plural: 'Meta' },
+      admin: {
+        description: 'Label bebas: Company, Role, Client, Location, dst',
+      },
+      fields: [
+        { name: 'label', type: 'text', required: true },
+        { name: 'value', type: 'text', required: true },
+      ],
+    },
+    {
+      name: 'blocks',
+      type: 'blocks',
+      blocks: projectBlocks,
+      validate: validateSlots,
+    },
+  ],
 }

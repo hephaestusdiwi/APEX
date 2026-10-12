@@ -23,5 +23,22 @@ export const SiteSettings: GlobalConfig = {
                 { name: 'href', type: 'text', required: true },
             ],
         },
+        {
+            name: 'homeHero',
+            type: 'group',
+            label: 'Hero Home',
+            fields: [
+                { name: 'image', type: 'upload', relationTo: 'media' },
+                { name: 'heading', type: 'text' },
+                { name: 'tagline', type: 'textarea' },
+            ],
+        },
+        {
+            name: 'instagramUrl',
+            type: 'text',
+            label: 'URL Instagram',
+            validate: (value?: string | null) =>
+                !value || /^https?:\/\//i.test(value) || 'Harus diawali https://',
+        },
     ],
 }

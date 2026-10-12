@@ -237,6 +237,9 @@ export interface Project {
      */
     cover?: (number | null) | Media;
     size?: ('small' | 'medium' | 'large' | 'full') | null;
+    /**
+     * Bagian gambar yang dipertahankan saat di-crop. Center = ikuti focal point.
+     */
     align?: ('left' | 'center' | 'right') | null;
   };
   /**
@@ -365,6 +368,7 @@ export interface ImageTextBlock {
     [k: string]: unknown;
   };
   imageSide?: ('left' | 'right') | null;
+  includeMeta?: boolean | null;
   /**
    * Biarkan "default" kalau tidak perlu menimpa layout block ini.
    */
@@ -886,6 +890,7 @@ export interface ImageTextBlockSelect<T extends boolean = true> {
   media?: T;
   body?: T;
   imageSide?: T;
+  includeMeta?: T;
   layout?:
     | T
     | {
@@ -1145,6 +1150,12 @@ export interface SiteSetting {
         id?: string | null;
       }[]
     | null;
+  homeHero?: {
+    image?: (number | null) | Media;
+    heading?: string | null;
+    tagline?: string | null;
+  };
+  instagramUrl?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1161,6 +1172,14 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         href?: T;
         id?: T;
       };
+  homeHero?:
+    | T
+    | {
+        image?: T;
+        heading?: T;
+        tagline?: T;
+      };
+  instagramUrl?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

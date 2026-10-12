@@ -5,10 +5,10 @@ export function LinkView({ block }: { block: LinkBlockData }) {
   return (
     <a
       href={block.href}
-      className="inline-flex items-baseline gap-2 text-2xl underline underline-offset-8 md:text-4xl"
+      className="inline-flex items-baseline gap-2 text-2xl md:text-4xl"
       {...(block.newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
     >
-      {block.label}
+      <span className="underline underline-offset-8">{block.label}</span>
       {external ? <span aria-hidden="true">↗</span> : null}
     </a>
   )

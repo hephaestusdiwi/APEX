@@ -25,11 +25,17 @@ export const ImageTextBlock: Block = {
         {
             name: 'imageSide',
             type: 'select',
-            defaultValue: 'left',
+            defaultValue: 'right',
             options: [
                 { label: 'Gambar di kiri', value: 'left' },
                 { label: 'Gambar di kanan', value: 'right' },
             ],
+        },
+        {
+            name: 'includeMeta',
+            type: 'checkbox',
+            defaultValue: false,
+            label: 'Sertakan meta project di kolom teks',
         },
         layoutField(),
     ],

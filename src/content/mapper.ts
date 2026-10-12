@@ -40,10 +40,17 @@ const toLayout = (layout: PayloadBlock['layout']): BlockLayout => ({
   motion: pick(layout?.motion, MOTIONS),
 })
 
-const toMedia = (value: number | Media | null | undefined): MediaAsset | null => {
+export const toMedia = (value: number | Media | null | undefined): MediaAsset | null => {
   if (!value || typeof value !== 'object') return null
   if (!value.url || !value.width || !value.height) return null
-  return { src: value.url, alt: value.alt, width: value.width, height: value.height }
+  return {
+    src: value.url,
+    alt: value.alt,
+    width: value.width,
+    height: value.height,
+    focalX: value.focalX ?? undefined,
+    focalY: value.focalY ?? undefined,
+  }
 }
 
 const toMeta = (doc: Project): ProjectMetaItem[] =>
@@ -138,7 +145,9 @@ const mapBlock = (block: PayloadBlock, index: number, ctx: BlockContext): BlockD
         layout,
         media,
         paragraphs,
-        imageSide: block.imageSide === 'right' ? 'right' : 'left',
+        imageSide: block.imageSide === 'left' ? 'left' : 'right',
+        includeMeta: Boolean(block.includeMeta),
+        meta: block.includeMeta ? ctx.meta : [],
       }
     }
     case 'gallery': {

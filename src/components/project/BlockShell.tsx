@@ -1,11 +1,20 @@
 import type { ReactNode } from 'react'
 import type { BlockType, ResolvedLayout, Space, Width } from '@/content/types'
 
-const WIDTH: Record<Width, string> = {
-  narrow: 'max-w-xl px-5 md:px-10',
-  content: 'max-w-3xl px-5 md:px-10',
-  wide: 'max-w-7xl px-5 md:px-10',
-  full: 'max-w-none px-0',
+/** Kolom konten: 75% lebar layar di desktop, rata kiri dengan judul hero. `full` = tanpa batas. */
+const CONTAINER: Record<Width, string> = {
+  narrow: 'px-5 md:w-3/4 md:max-w-[96rem] md:px-0',
+  content: 'px-5 md:w-3/4 md:max-w-[96rem] md:px-0',
+  wide: 'px-5 md:w-3/4 md:max-w-[96rem] md:px-0',
+  full: 'px-0',
+}
+
+/** Batas lebar isi di dalam kolom (block teks tetap enak dibaca). */
+const INNER: Record<Width, string> = {
+  narrow: 'max-w-xl',
+  content: 'max-w-3xl',
+  wide: '',
+  full: '',
 }
 
 const BEFORE: Record<Space, string> = {
@@ -37,7 +46,9 @@ export function BlockShell({ type, layout, children }: Props) {
       data-motion={layout.motion}
       className={`${BEFORE[layout.spaceBefore]} ${AFTER[layout.spaceAfter]}`}
     >
-      <div className={`mx-auto w-full ${WIDTH[layout.width]}`}>{children}</div>
+      <div className={`mx-auto w-full ${CONTAINER[layout.width]}`}>
+        <div className={INNER[layout.width]}>{children}</div>
+      </div>
     </section>
   )
 }

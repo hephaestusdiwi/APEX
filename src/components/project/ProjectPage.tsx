@@ -10,10 +10,13 @@ type Props = {
 }
 
 export function ProjectPage({ project, neighbors }: Props) {
+  const hasTitleSlot = project.blocks.some((block) => block.type === 'titleSlot')
+  const titleInHero = Boolean(project.hero) && !hasTitleSlot
+
   return (
-    <article className="pb-24">
-      <ProjectHero hero={project.hero} />
-      <ProjectContent blocks={withDefaultSlots(project)} />
+    <article className={project.hero ? undefined : 'pt-28 md:pt-36'}>
+      <ProjectHero hero={project.hero} title={titleInHero ? project.title : null} />
+      <ProjectContent blocks={withDefaultSlots(project, { titleInHero })} />
       {neighbors ? <ProjectNavigation neighbors={neighbors} /> : null}
     </article>
   )
