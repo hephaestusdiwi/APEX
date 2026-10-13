@@ -7,7 +7,11 @@ export const Users: CollectionConfig = {
     useAsTitle: 'email',
     defaultColumns: ['email', 'role'],
   },
-  auth: true,
+  auth: {
+    // Aktifkan di production yang memakai HTTPS: COOKIE_SECURE=true. Nilai lain memakai bawaan Payload
+    // (lockout 5x gagal selama 10 menit, token berlaku 2 jam).
+    cookies: { secure: process.env.COOKIE_SECURE === 'true', sameSite: 'Lax' },
+  },
   access: {
     // Hanya staff (admin/editor) yang boleh masuk admin panel.
     admin: ({ req }) => isStaff(req.user),

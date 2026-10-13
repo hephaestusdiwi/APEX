@@ -395,7 +395,7 @@ export interface ImageTextBlock {
  * via the `definition` "GalleryBlock".
  */
 export interface GalleryBlock {
-  variant?: ('grid-2' | 'grid-3' | 'staggered' | 'strip') | null;
+  variant?: ('grid-2' | 'grid-3' | 'staggered' | 'strip' | 'mosaic') | null;
   images: (number | Media)[];
   /**
    * Biarkan "default" kalau tidak perlu menimpa layout block ini.

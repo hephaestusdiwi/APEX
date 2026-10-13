@@ -15,6 +15,7 @@ export const GalleryBlock: Block = {
         { label: 'Grid 3 kolom', value: 'grid-3' },
         { label: 'Staggered', value: 'staggered' },
         { label: 'Strip', value: 'strip' },
+        { label: 'Apollon SmartFill', value: 'mosaic' },
       ],
     },
     { name: 'images', type: 'upload', relationTo: 'media', hasMany: true, required: true },

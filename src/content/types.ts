@@ -3,7 +3,7 @@ import type { TextColor, TextSize } from '@/lib/richStyles'
 export const WIDTHS = ['narrow', 'content', 'wide', 'full'] as const
 export const SPACES = ['none', 'sm', 'md', 'lg', 'xl'] as const
 export const MOTIONS = ['none', 'reveal', 'parallax'] as const
-export const GALLERY_VARIANTS = ['grid-2', 'grid-3', 'staggered', 'strip'] as const
+export const GALLERY_VARIANTS = ['grid-2', 'grid-3', 'staggered', 'strip', 'mosaic'] as const
 export const EMBED_ASPECTS = ['16-9', '4-3', '1-1', '21-9'] as const
 
 export type Width = (typeof WIDTHS)[number]

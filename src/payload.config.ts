@@ -18,6 +18,11 @@ import { Contacts } from './collections/Contacts'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map((origin) => origin.trim().replace(/\/$/, ''))
+  .filter(Boolean)
+
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -29,6 +34,8 @@ export default buildConfig({
   globals: [SiteSettings, ContactSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
+  cors: allowedOrigins,
+  csrf: allowedOrigins,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
