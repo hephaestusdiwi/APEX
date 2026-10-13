@@ -1,6 +1,7 @@
 import type { Media, Page, Project, Video } from '@/payload-types'
 import { isAllowedEmbedUrl } from '@/lib/embed'
 import { isSafeHref } from '@/lib/href'
+import { TEXT_COLOR_KEYS, TEXT_SIZE_KEYS } from '@/lib/richStyles'
 import { parseVideoUrl } from '@/lib/video'
 import {
   EMBED_ASPECTS,
@@ -17,8 +18,12 @@ import {
   type ProjectData,
   type ProjectMetaItem,
   type ProjectSummary,
+  type RichAlign,
+  type RichBlock,
   type RichInline,
-  type RichParagraph,
+  type RichList,
+  type RichListItem,
+  type VideoAsset,
   type VideoSource,
 } from './types'
 
@@ -56,31 +61,43 @@ export const toMedia = (value: number | Media | null | undefined): MediaAsset | 
 const toMeta = (doc: Project): ProjectMetaItem[] =>
   (doc.meta ?? []).map(({ label, value }) => ({ label, value }))
 
-// --- Lexical -> node sederhana -------------------------------------------
+// --- Lexical -> node sederhana 
 
 type LexNode = {
   type: string
   text?: string
-  format?: number
+  format?: number | string
+  tag?: string
+  listType?: string
   children?: LexNode[]
   fields?: { url?: string; newTab?: boolean }
+  /** State teks (TextStateFeature): { color: 'accent', size: 'large' }. */
+  $?: Record<string, unknown>
 }
 
 const IS_BOLD = 1
 const IS_ITALIC = 2
+const IS_STRIKE = 4
+const IS_UNDERLINE = 8
+
+const asString = (value: unknown): string | undefined => (typeof value === 'string' ? value : undefined)
 
 const toInlines = (nodes: LexNode[] | undefined): RichInline[] =>
   (nodes ?? []).flatMap((node): RichInline[] => {
     switch (node.type) {
       case 'text': {
         if (!node.text) return []
-        const format = node.format ?? 0
+        const format = typeof node.format === 'number' ? node.format : 0
         return [
           {
             type: 'text',
             text: node.text,
             bold: (format & IS_BOLD) !== 0,
             italic: (format & IS_ITALIC) !== 0,
+            underline: (format & IS_UNDERLINE) !== 0,
+            strike: (format & IS_STRIKE) !== 0,
+            color: pick(asString(node.$?.color), TEXT_COLOR_KEYS),
+            size: pick(asString(node.$?.size), TEXT_SIZE_KEYS),
           },
         ]
       }
@@ -97,28 +114,78 @@ const toInlines = (nodes: LexNode[] | undefined): RichInline[] =>
     }
   })
 
-const toParagraphs = (body: unknown): RichParagraph[] => {
-  const root = (body as { root?: { children?: LexNode[] } } | null | undefined)?.root
-  return (root?.children ?? [])
-    .filter((node) => node.type === 'paragraph')
-    .map((node) => ({ children: toInlines(node.children) }))
-    .filter((paragraph) => paragraph.children.length > 0)
+const ALIGNS = ['left', 'center', 'right', 'justify'] as const
+
+const toAlign = (format: LexNode['format']): RichAlign | undefined =>
+  pick(asString(format), ALIGNS)
+
+const toList = (node: LexNode): RichList | null => {
+  const items: RichListItem[] = []
+  for (const item of node.children ?? []) {
+    if (item.type !== 'listitem') continue
+    const nodes = item.children ?? []
+    const nested = nodes
+      .filter((child) => child.type === 'list')
+      .map(toList)
+      .filter((list): list is RichList => list !== null)
+    const children = toInlines(nodes.filter((child) => child.type !== 'list'))
+
+    if (children.length > 0) {
+      items.push({ children, nested })
+    } else if (nested.length > 0 && items.length > 0) {
+      // Lexical menaruh sub-list di list item tersendiri; tempelkan ke item sebelumnya.
+      items[items.length - 1]!.nested.push(...nested)
+    }
+  }
+  return items.length > 0 ? { type: 'list', ordered: node.listType === 'number', items } : null
 }
 
-// --- Video ---------------------------------------------------------------
+const toRichBlocks = (body: unknown): RichBlock[] => {
+  const root = (body as { root?: { children?: LexNode[] } } | null | undefined)?.root
+  return (root?.children ?? []).flatMap((node): RichBlock[] => {
+    const align = toAlign(node.format)
+    switch (node.type) {
+      case 'paragraph': {
+        const children = toInlines(node.children)
+        return children.length > 0 ? [{ type: 'paragraph', align, children }] : []
+      }
+      case 'heading': {
+        const children = toInlines(node.children)
+        const level = node.tag === 'h4' ? 4 : node.tag === 'h3' ? 3 : 2
+        return children.length > 0 ? [{ type: 'heading', level, align, children }] : []
+      }
+      case 'quote': {
+        const children = toInlines(node.children)
+        return children.length > 0 ? [{ type: 'quote', align, children }] : []
+      }
+      case 'list': {
+        const list = toList(node)
+        return list ? [list] : []
+      }
+      default:
+        return []
+    }
+  })
+}
+
+// --- Video
+
+export const toVideoAsset = (value: number | Video | null | undefined): VideoAsset | null => {
+  if (!value || typeof value !== 'object' || !value.url) return null
+  if (!value.mimeType?.startsWith('video/')) return null
+  return { src: value.url, mimeType: value.mimeType }
+}
 
 const toVideoSource = (block: Extract<PayloadBlock, { blockType: 'video' }>): VideoSource | null => {
   if (block.provider === 'file') {
-    const file: number | Video | null | undefined = block.file
-    if (!file || typeof file !== 'object' || !file.url) return null
-    if (!file.mimeType?.startsWith('video/')) return null
-    return { kind: 'file', src: file.url, mimeType: file.mimeType }
+    const file = toVideoAsset(block.file)
+    return file ? { kind: 'file', ...file } : null
   }
   const parsed = block.url ? parseVideoUrl(block.url) : null
   return parsed ? { kind: 'embed', provider: parsed.provider, src: parsed.src } : null
 }
 
-// --- Block ---------------------------------------------------------------
+// --- Block
 
 const mapBlock = (block: PayloadBlock, index: number, ctx: BlockContext): BlockData | null => {
   const id = block.id ?? `${block.blockType}-${index}`
@@ -128,8 +195,8 @@ const mapBlock = (block: PayloadBlock, index: number, ctx: BlockContext): BlockD
     case 'heading':
       return { type: 'heading', id, layout, text: block.text, level: block.level === 'h3' ? 'h3' : 'h2' }
     case 'text': {
-      const paragraphs = toParagraphs(block.body)
-      return paragraphs.length > 0 ? { type: 'text', id, layout, paragraphs } : null
+      const content = toRichBlocks(block.body)
+      return content.length > 0 ? { type: 'text', id, layout, content } : null
     }
     case 'image': {
       const media = toMedia(block.media)
@@ -137,14 +204,14 @@ const mapBlock = (block: PayloadBlock, index: number, ctx: BlockContext): BlockD
     }
     case 'imageText': {
       const media = toMedia(block.media)
-      const paragraphs = toParagraphs(block.body)
-      if (!media || paragraphs.length === 0) return null
+      const content = toRichBlocks(block.body)
+      if (!media || content.length === 0) return null
       return {
         type: 'imageText',
         id,
         layout,
         media,
-        paragraphs,
+        content,
         imageSide: block.imageSide === 'left' ? 'left' : 'right',
         includeMeta: Boolean(block.includeMeta),
         meta: block.includeMeta ? ctx.meta : [],
@@ -190,8 +257,9 @@ const mapBlock = (block: PayloadBlock, index: number, ctx: BlockContext): BlockD
       return { type: 'spacer', id, layout, size: pick(block.size, ['sm', 'md', 'lg', 'xl'] as const) ?? 'md' }
     case 'titleSlot':
       return { type: 'titleSlot', id, layout, title: ctx.title }
-    case 'metaSlot':
+    case 'metaSlot': {
       return ctx.meta.length > 0 ? { type: 'metaSlot', id, layout, items: ctx.meta } : null
+    }
     default: {
       // Error compile di sini = ada block baru di Payload yang belum dipetakan.
       const unmapped: never = block
@@ -231,6 +299,7 @@ export const mapSummary = (doc: SummaryDoc): ProjectSummary => ({
   slug: doc.slug ?? '',
   title: doc.title,
   image: toMedia(doc.home?.cover) ?? toMedia(doc.hero),
+  video: toVideoAsset(doc.home?.coverVideo),
   size: pick(doc.home?.size, HOME_SIZES) ?? 'medium',
-  align: pick(doc.home?.align, HOME_ALIGNS) ?? 'left',
+  align: pick(doc.home?.align, HOME_ALIGNS) ?? 'center',
 })

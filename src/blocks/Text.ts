@@ -1,12 +1,6 @@
 import type { Block } from 'payload'
-import {
-    BoldFeature,
-    ItalicFeature,
-    LinkFeature,
-    ParagraphFeature,
-    lexicalEditor,
-} from '@payloadcms/richtext-lexical'
-import { layoutField } from '@/fields/layout'
+import { richTextEditor } from '../fields/richText'
+import { layoutField } from '../fields/layout'
 
 export const TextBlock: Block = {
     slug: 'text',
@@ -17,9 +11,7 @@ export const TextBlock: Block = {
             name: 'body',
             type: 'richText',
             required: true,
-            editor: lexicalEditor({
-                features: [ParagraphFeature(), BoldFeature(), ItalicFeature(), LinkFeature()],
-            }),
+            editor: richTextEditor(),
         },
         layoutField(),
     ],

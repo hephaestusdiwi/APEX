@@ -1,6 +1,6 @@
 import type { TextBlockData } from '@/content/types'
-import { RichParagraphs } from './RichParagraphs'
+import { RichText } from './RichText'
 
 export function TextView({ block }: { block: TextBlockData }) {
-  return <RichParagraphs paragraphs={block.paragraphs} />
+  return <RichText blocks={block.content} />
 }

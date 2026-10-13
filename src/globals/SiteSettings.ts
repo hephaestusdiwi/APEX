@@ -28,7 +28,18 @@ export const SiteSettings: GlobalConfig = {
             type: 'group',
             label: 'Hero Home',
             fields: [
-                { name: 'image', type: 'upload', relationTo: 'media' },
+                {
+                    name: 'video',
+                    type: 'upload',
+                    relationTo: 'videos',
+                    admin: { description: 'Opsional. Kalau diisi, dipakai sebagai latar hero (diputar tanpa suara, berulang).' },
+                },
+                {
+                    name: 'image',
+                    type: 'upload',
+                    relationTo: 'media',
+                    admin: { description: 'Gambar hero. Kalau ada video, gambar ini jadi poster (tampil sebelum video main dan saat reduced motion).'},
+                },
                 { name: 'heading', type: 'text' },
                 { name: 'tagline', type: 'textarea' },
             ],

@@ -1,3 +1,5 @@
+import type { TextColor, TextSize } from '@/lib/richStyles'
+
 export const WIDTHS = ['narrow', 'content', 'wide', 'full'] as const
 export const SPACES = ['none', 'sm', 'md', 'lg', 'xl'] as const
 export const MOTIONS = ['none', 'reveal', 'parallax'] as const
@@ -29,11 +31,31 @@ export type MediaAsset = {
 }
 
 export type RichInline =
-  | { type: 'text'; text: string; bold: boolean; italic: boolean }
-  | { type: 'break' }
+  | {
+    type: 'text'
+    text: string
+    bold: boolean
+    italic: boolean
+    underline: boolean
+    strike: boolean
+    color?: TextColor
+    size?: TextSize
+  }
+  | { type: 'break'  }
   | { type: 'link'; href: string; newTab: boolean; children: RichInline[] }
 
-export type RichParagraph = { children: RichInline[] }
+export type RichAlign = 'left' | 'center' | 'right' | 'justify'
+
+export type RichListItem = { children: RichInline[]; nested: RichList[] }
+export type RichList = { type: 'list'; ordered: boolean; items: RichListItem[] }
+
+export type RichBlock =
+  | { type: 'paragraph'; align?: RichAlign; children: RichInline[] }
+  | { type: 'heading'; level: 2 | 3 | 4; align?: RichAlign; children: RichInline[] }
+  | { type: 'quote'; align?: RichAlign; children: RichInline[] }
+  | RichList
+
+export type VideoAsset = { src: string; mimeType: string }
 
 export type VideoSource =
   | { kind: 'embed'; provider: 'vimeo' | 'youtube'; src: string }
@@ -50,7 +72,7 @@ export type HeadingBlockData = BlockBase & {
 }
 export type TextBlockData = BlockBase & {
   type: 'text'
-  paragraphs: RichParagraph[]
+  content: RichBlock[]
 }
 export type ImageBlockData = BlockBase & {
   type: 'image'
@@ -60,7 +82,7 @@ export type ImageBlockData = BlockBase & {
 export type ImageTextBlockData = BlockBase & {
   type: 'imageText'
   media: MediaAsset
-  paragraphs: RichParagraph[]
+  content: RichBlock[]
   imageSide: 'left' | 'right'
   includeMeta: boolean
   meta: ProjectMetaItem[]
@@ -146,6 +168,7 @@ export type ProjectSummary = {
   slug: string
   title: string
   image: MediaAsset | null
+  video: VideoAsset | null
   size: HomeSize
   align: HomeAlign
 }

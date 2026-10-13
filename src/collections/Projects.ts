@@ -42,6 +42,15 @@ export const Projects: CollectionConfig = {
           },
         },
         {
+          name: 'coverVideo',
+          type: 'upload',
+          relationTo: 'videos',
+          admin: {
+            description:
+            'Opsional. Kalau diisi, tile di home memutar video ini (tanpa suara, berulang, hanya saat terlihat). Cover dipakai sebagai poster.',
+          },
+        },
+        {
           type: 'row',
           fields: [
             {

@@ -72,6 +72,7 @@ export interface Config {
     videos: Video;
     projects: Project;
     pages: Page;
+    contacts: Contact;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +85,7 @@ export interface Config {
     videos: VideosSelect<false> | VideosSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    contacts: ContactsSelect<false> | ContactsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -95,9 +97,11 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'site-settings': SiteSetting;
+    'contact-settings': ContactSetting;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'contact-settings': ContactSettingsSelect<false> | ContactSettingsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -236,6 +240,10 @@ export interface Project {
      * Gambar di index home. Kosong = pakai hero.
      */
     cover?: (number | null) | Media;
+    /**
+     * Opsional. Kalau diisi, tile di home memutar video ini (tanpa suara, berulang, hanya saat terlihat). Cover dipakai sebagai poster.
+     */
+    coverVideo?: (number | null) | Video;
     size?: ('small' | 'medium' | 'large' | 'full') | null;
     /**
      * Bagian gambar yang dipertahankan saat di-crop. Center = ikuti focal point.
@@ -607,6 +615,20 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contacts".
+ */
+export interface Contact {
+  id: number;
+  name: string;
+  email: string;
+  subject?: string | null;
+  message: string;
+  status: 'new' | 'read' | 'archived';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -648,6 +670,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'contacts';
+        value: number | Contact;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -798,6 +824,7 @@ export interface ProjectsSelect<T extends boolean = true> {
     | T
     | {
         cover?: T;
+        coverVideo?: T;
         size?: T;
         align?: T;
       };
@@ -1098,6 +1125,19 @@ export interface PagesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contacts_select".
+ */
+export interface ContactsSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  subject?: T;
+  message?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -1151,11 +1191,36 @@ export interface SiteSetting {
       }[]
     | null;
   homeHero?: {
+    /**
+     * Opsional. Kalau diisi, dipakai sebagai latar hero (diputar tanpa suara, berulang).
+     */
+    video?: (number | null) | Video;
+    /**
+     * Gambar hero. Kalau ada video, gambar ini jadi poster (tampil sebelum video main dan saat reduced motion).
+     */
     image?: (number | null) | Media;
     heading?: string | null;
     tagline?: string | null;
   };
   instagramUrl?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-settings".
+ */
+export interface ContactSetting {
+  id: number;
+  /**
+   * Setiap pesan kontak baru dikirim ke semua alamat di daftar ini
+   */
+  recipients?:
+    | {
+        email: string;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1175,11 +1240,27 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   homeHero?:
     | T
     | {
+        video?: T;
         image?: T;
         heading?: T;
         tagline?: T;
       };
   instagramUrl?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-settings_select".
+ */
+export interface ContactSettingsSelect<T extends boolean = true> {
+  recipients?:
+    | T
+    | {
+        email?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

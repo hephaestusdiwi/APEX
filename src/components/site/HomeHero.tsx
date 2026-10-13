@@ -1,13 +1,14 @@
 import Image from 'next/image'
 import type { HomeHeroData } from '@/content/site'
 import { focalPosition } from '@/lib/focal'
+import { AutoVideo } from '../media/AutoVideo'
 
 export function HomeHero({ siteName, hero }: { siteName: string; hero: HomeHeroData }) {
-  const { image, heading, tagline } = hero
-  const empty = !image && !heading && !tagline
+  const { video, image, heading, tagline } = hero
+  const hasMedia = Boolean(video || image)
 
   // Tanpa hero: cukup ruang kosong di bawah header, dengan h1 tersembunyi untuk aksesibilitas.
-  if (empty) {
+  if (!hasMedia && !heading && !tagline) {
     return (
       <div className="h-24 md:h-32">
         <h1 className="sr-only">{siteName}</h1>
@@ -16,8 +17,17 @@ export function HomeHero({ siteName, hero }: { siteName: string; hero: HomeHeroD
   }
 
   return (
-    <section className="relative h-[72vh] min-h-[26rem] w-full overflow-hidden">
-      {image ? (
+    <section className="relative h-[112vh] min-h-[26rem] w-full overflow-hidden">
+      {video ? (
+        <AutoVideo
+          src={video.src}
+          mimeType={video.mimeType}
+          poster={image?.src}
+          preload="auto"
+          className="absolute inset-0 h-full w-full object-cover"
+          style={image ? { objectPosition: focalPosition(image) } : undefined}
+        />
+      ) : image ? (
         <Image
           src={image.src}
           alt={image.alt}
@@ -28,7 +38,7 @@ export function HomeHero({ siteName, hero }: { siteName: string; hero: HomeHeroD
           style={{ objectPosition: focalPosition(image) }}
         />
       ) : null}
-      {image ? <div className="absolute inset-0 bg-black/35" /> : null}
+      {hasMedia ? <div className="absolute inset-0 bg-black/35" /> : null}
 
       {heading ? (
         <h1 className="absolute left-[4%] top-[26%] max-w-[18ch] text-[clamp(1.9rem,3.7vw,4rem)] font-medium leading-[1.1] md:left-[12.5%]">
