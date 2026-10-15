@@ -3,6 +3,7 @@ import { adminOnly, publishedOrStaff, staffOnly } from '../access'
 import { projectBlocks } from '../blocks'
 import { validateSlots } from '../blocks/Slots'
 import { slugField } from '../fields/slug'
+import { seoField } from '../fields/seo'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -24,5 +25,6 @@ export const Pages: CollectionConfig = {
     { name: 'title', type: 'text', required: true },
     slugField(),
     { name: 'blocks', type: 'blocks', blocks: projectBlocks, validate: validateSlots },
+    seoField(),
   ],
 }

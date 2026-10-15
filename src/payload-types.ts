@@ -279,6 +279,24 @@ export interface Project {
         | MetaSlotBlock
       )[]
     | null;
+  /**
+   * Semua opsional. Kosong = otomatis dari konten.
+   */
+  seo?: {
+    /**
+     * Ideal ≤ 60 karakter. Kosong = judul halaman.
+     */
+    title?: string | null;
+    /**
+     * Ideal 120–160 karakter.
+     */
+    description?: string | null;
+    /**
+     * Gambar share (OG), ideal 1200×630. Kosong = hero/cover.
+     */
+    image?: (number | null) | Media;
+    noIndex?: boolean | null;
+  };
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -611,6 +629,24 @@ export interface Page {
         | MetaSlotBlock
       )[]
     | null;
+  /**
+   * Semua opsional. Kosong = otomatis dari konten.
+   */
+  seo?: {
+    /**
+     * Ideal ≤ 60 karakter. Kosong = judul halaman.
+     */
+    title?: string | null;
+    /**
+     * Ideal 120–160 karakter.
+     */
+    description?: string | null;
+    /**
+     * Gambar share (OG), ideal 1200×630. Kosong = hero/cover.
+     */
+    image?: (number | null) | Media;
+    noIndex?: boolean | null;
+  };
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -876,6 +912,14 @@ export interface ProjectsSelect<T extends boolean = true> {
         spacer?: T | SpacerBlockSelect<T>;
         titleSlot?: T | TitleSlotBlockSelect<T>;
         metaSlot?: T | MetaSlotBlockSelect<T>;
+      };
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        noIndex?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1144,6 +1188,14 @@ export interface PagesSelect<T extends boolean = true> {
         titleSlot?: T | TitleSlotBlockSelect<T>;
         metaSlot?: T | MetaSlotBlockSelect<T>;
       };
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        noIndex?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1243,6 +1295,24 @@ export interface SiteSetting {
     tagline?: string | null;
   };
   instagramUrl?: string | null;
+  /**
+   * Semua opsional. Kosong = otomatis dari konten.
+   */
+  seo?: {
+    /**
+     * Ideal ≤ 60 karakter. Kosong = judul halaman.
+     */
+    title?: string | null;
+    /**
+     * Ideal 120–160 karakter.
+     */
+    description?: string | null;
+    /**
+     * Gambar share (OG), ideal 1200×630. Kosong = hero/cover.
+     */
+    image?: (number | null) | Media;
+    noIndex?: boolean | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1286,6 +1356,14 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         tagline?: T;
       };
   instagramUrl?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        noIndex?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

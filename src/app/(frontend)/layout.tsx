@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
+import { SITE_URL } from '@/lib/seo'
 import { PageViewTracker } from '@/components/analytics/PageViewTracker'
 import { MotionProvider } from '@/components/motion/MotionProvider'
 import { SiteFooter } from '@/components/site/SiteFooter'
@@ -18,8 +19,22 @@ const poppins = Poppins({
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { siteName } = await getSiteSettings()
-  return { title: { default: siteName, template: `%s — ${siteName}` } }
+  const { siteName, homeHero } = await getSiteSettings()
+  const description = homeHero.tagline || undefined
+  const image = homeHero.image
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: { default: siteName, template: `%s - ${siteName}` },
+    description,
+    openGraph: {
+      type: 'website',
+      siteName,
+      locale: 'id-ID',
+      description,
+      images: image ? [{ url: image.src, width: image.width, height: image.height, alt: image.alt }] : undefined,
+    },
+    twitter: { card: 'summary_large_image' },
+  }
 }
 
 export default async function RootLayout({ children }: { children: ReactNode }) {

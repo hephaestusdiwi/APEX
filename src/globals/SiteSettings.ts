@@ -1,5 +1,6 @@
 import type { GlobalConfig } from "payload";
 import { adminOnly } from '../access'
+import { seoField } from '../fields/seo'
 
 export const SiteSettings: GlobalConfig = {
     slug: 'site-settings',
@@ -51,5 +52,6 @@ export const SiteSettings: GlobalConfig = {
             validate: (value?: string | null) =>
                 !value || /^https?:\/\//i.test(value) || 'Harus diawali https://',
         },
+        seoField(),
     ],
 }

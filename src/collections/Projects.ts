@@ -4,6 +4,7 @@ import { adminOnly, publishedOrStaff, staffOnly } from '@/access'
 import { projectBlocks } from '../blocks'
 import { validateSlots } from '@/blocks/Slots'
 import { slugField } from '../fields/slug'
+import { seoField } from '../fields/seo'
 import { use } from 'react'
 import { sign } from 'crypto'
 
@@ -103,5 +104,6 @@ export const Projects: CollectionConfig = {
       blocks: projectBlocks,
       validate: validateSlots,
     },
+    seoField(),
   ],
 }
