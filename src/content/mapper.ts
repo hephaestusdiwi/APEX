@@ -11,6 +11,7 @@ import {
   MOTIONS,
   SPACES,
   WIDTHS,
+  SeoData,
   type BlockData,
   type BlockLayout,
   type MediaAsset,
@@ -45,6 +46,13 @@ const toLayout = (layout: PayloadBlock['layout']): BlockLayout => ({
   motion: pick(layout?.motion, MOTIONS),
 })
 
+export const toSeo = (seo: Project['seo']): SeoData => ({
+  title: seo?.title?.trim() || undefined,
+  description: seo?.description?.trim() || undefined,
+  image: toMedia(seo?.image),
+  noIndex: Boolean(seo?.noIndex),
+})
+
 export const toMedia = (value: number | Media | null | undefined): MediaAsset | null => {
   if (!value || typeof value !== 'object') return null
   if (!value.url || !value.width || !value.height) return null
@@ -55,6 +63,10 @@ export const toMedia = (value: number | Media | null | undefined): MediaAsset | 
     height: value.height,
     focalX: value.focalX ?? undefined,
     focalY: value.focalY ?? undefined,
+    og:
+      value.sizes?.og?.url && value.sizes.og.width && value.sizes.og.height
+      ? { src: value.sizes.og.url, width: value.sizes.og.width, height: value.sizes.og.height }
+      : undefined,
   }
 }
 
@@ -280,6 +292,7 @@ export const mapProject = (doc: Project): ProjectData => {
     slug: doc.slug ?? '',
     title: doc.title,
     hero: toMedia(doc.hero),
+    seo: toSeo(doc.seo),
     meta,
     blocks: mapBlocks(doc.blocks, { title: doc.title, meta }),
   }
@@ -289,6 +302,7 @@ export const mapPage = (doc: Page): PageData => ({
   id: doc.id,
   slug: doc.slug ?? '',
   title: doc.title,
+  seo: toSeo(doc.seo),
   blocks: mapBlocks(doc.blocks, { title: doc.title, meta: [] }),
 })
 

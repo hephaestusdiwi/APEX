@@ -26,6 +26,12 @@ const securityHeaders = [
   },
 ]
 
+const previewHeaders = [
+  { key: 'Cache-Control', value: 'private, no-store, max-age=0, must-revalidate' },
+  { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive, nosnippet' },
+  { key: 'Referrer-Policy', value: 'no-referrer' },
+]
+
 const nextConfig: NextConfig = {
   output: 'standalone',
 
@@ -36,6 +42,11 @@ const nextConfig: NextConfig = {
       {
         source: '/:path*',
         headers: securityHeaders,
+      },
+      // Draft preview: jangan pernah masuk cache bersama, mesin pencari, atau header Referer.
+      {
+        source: '/preview/:path*',
+        headers: previewHeaders,
       },
     ]
   },

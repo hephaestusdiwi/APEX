@@ -1,8 +1,8 @@
 import { cache } from 'react'
 import { isSafeHref } from '@/lib/href'
 import { getPayloadClient } from '@/lib/payload'
-import { toMedia, toVideoAsset } from './mapper'
-import type { MediaAsset, VideoAsset } from './types'
+import { toMedia, toSeo, toVideoAsset } from './mapper'
+import type { MediaAsset, SeoData, VideoAsset } from './types'
 
 export type HomeHeroData = {
   video: VideoAsset | null
@@ -16,6 +16,7 @@ export type SiteSettings = {
   navigation: { label: string; href: string }[]
   instagramUrl: string | null
   homeHero: HomeHeroData
+  seo: SeoData
 }
 
 export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
@@ -28,6 +29,7 @@ export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
       .filter((item) => isSafeHref(item.href))
       .map(({ label, href }) => ({ label, href })),
     instagramUrl: instagram && /^https?:\/\//i.test(instagram) ? instagram : null,
+    seo: toSeo(settings.seo),
     homeHero: {
       video: toVideoAsset(settings.homeHero?.video),
       image: toMedia(settings.homeHero?.image),

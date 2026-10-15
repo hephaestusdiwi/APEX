@@ -5,6 +5,7 @@ import { projectBlocks } from '../blocks'
 import { validateSlots } from '@/blocks/Slots'
 import { slugField } from '../fields/slug'
 import { seoField } from '../fields/seo'
+import { previewLinkEndpoint } from '../preview/endpoint'
 import { use } from 'react'
 import { sign } from 'crypto'
 
@@ -13,8 +14,14 @@ export const Projects: CollectionConfig = {
   orderable: true,
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'slug', '_status', 'updatedAt'],
+    defaultColumns: ['title', 'slug', '_status', 'updatedAt', 'preview'],
+    // URL preview yang sebenarnya dibuat oleh endpoint /preview-link.
+    preview: () => null,
+    components: {
+      edit: { PreviewButton: '/components/admin/PreviewButton#PreviewButton' },
+    },
   },
+  endpoints: [previewLinkEndpoint('projects')],
   versions: {
     drafts: true,
     maxPerDoc: 25,
@@ -103,6 +110,12 @@ export const Projects: CollectionConfig = {
       type: 'blocks',
       blocks: projectBlocks,
       validate: validateSlots,
+    },
+    {
+      name: 'preview',
+      type: 'ui',
+      label: 'Preview',
+      admin: { components: { Cell: '/components/admin/PreviewCell#PreviewCell' } },
     },
     seoField(),
   ],

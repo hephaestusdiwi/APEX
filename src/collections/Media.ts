@@ -32,6 +32,7 @@ export const Media: CollectionConfig = {
       { name: 'thumbnail', width: 400 },
       { name: 'medium', width: 960 },
       { name: 'large', width: 1920 },
+      { name: 'og', width: 1200, height: 630, fit: 'cover' },
     ],
   },
 }

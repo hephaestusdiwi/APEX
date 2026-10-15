@@ -19,9 +19,9 @@ const poppins = Poppins({
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { siteName, homeHero } = await getSiteSettings()
-  const description = homeHero.tagline || undefined
-  const image = homeHero.image
+  const { siteName, homeHero, seo } = await getSiteSettings()
+  const description = seo.description || homeHero.tagline || undefined
+  const image = seo.image ?? homeHero.image
   return {
     metadataBase: new URL(SITE_URL),
     title: { default: siteName, template: `%s - ${siteName}` },

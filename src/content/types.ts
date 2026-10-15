@@ -28,6 +28,7 @@ export type MediaAsset = {
   height: number
   focalX?: number
   focalY?: number
+  og?: { src: string; width: number; height: number }
 }
 
 export type RichInline =
@@ -155,6 +156,7 @@ export type ProjectData = {
   hero: MediaAsset | null
   meta: ProjectMetaItem[]
   blocks: BlockData[]
+  seo: SeoData
 }
 
 export const HOME_SIZES = ['small', 'medium', 'large', 'full'] as const
@@ -162,6 +164,13 @@ export const HOME_ALIGNS = ['left', 'center', 'right'] as const
 
 export type HomeSize = (typeof HOME_SIZES)[number]
 export type HomeAlign = (typeof HOME_ALIGNS)[number]
+
+export type SeoData = {
+  title?: string
+  description?: string
+  image: MediaAsset | null
+  noIndex: boolean
+}
 
 export type ProjectSummary = {
   id: number
@@ -181,4 +190,5 @@ export type PageData = {
   slug: string
   title: string
   blocks: BlockData[]
+  seo: SeoData
 }
