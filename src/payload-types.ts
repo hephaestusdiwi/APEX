@@ -73,6 +73,7 @@ export interface Config {
     projects: Project;
     pages: Page;
     contacts: Contact;
+    visits: Visit;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -86,6 +87,7 @@ export interface Config {
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     contacts: ContactsSelect<false> | ContactsSelect<true>;
+    visits: VisitsSelect<false> | VisitsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -629,6 +631,25 @@ export interface Contact {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "visits".
+ */
+export interface Visit {
+  id: number;
+  path: string;
+  referrer?: string | null;
+  device?: ('desktop' | 'mobile' | 'tablet' | 'other') | null;
+  browser?: string | null;
+  os?: string | null;
+  country?: string | null;
+  /**
+   * ID anonim yang berganti tiap hari (bukan IP).
+   */
+  visitor?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -674,6 +695,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'contacts';
         value: number | Contact;
+      } | null)
+    | ({
+        relationTo: 'visits';
+        value: number | Visit;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1133,6 +1158,21 @@ export interface ContactsSelect<T extends boolean = true> {
   subject?: T;
   message?: T;
   status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "visits_select".
+ */
+export interface VisitsSelect<T extends boolean = true> {
+  path?: T;
+  referrer?: T;
+  device?: T;
+  browser?: T;
+  os?: T;
+  country?: T;
+  visitor?: T;
   updatedAt?: T;
   createdAt?: T;
 }

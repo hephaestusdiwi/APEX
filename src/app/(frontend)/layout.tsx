@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
+import { PageViewTracker } from '@/components/analytics/PageViewTracker'
 import { MotionProvider } from '@/components/motion/MotionProvider'
 import { SiteFooter } from '@/components/site/SiteFooter'
 import { SiteHeader } from '@/components/site/SiteHeader'
@@ -28,6 +29,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     <html lang="en" className={poppins.variable}>
       <body className="relative flex min-h-screen flex-col">
         <MotionProvider />
+        <PageViewTracker />
         <SiteHeader siteName={siteName} navigation={navigation} />
         <main className="flex-1">{children}</main>
         <SiteFooter navigation={navigation} instagramUrl={instagramUrl} />

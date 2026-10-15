@@ -14,6 +14,7 @@ import { ContactSettings } from './globals/ContactSettings'
 import { Projects } from './collections/Projects'
 import { Videos } from './collections/Videos'
 import { Contacts } from './collections/Contacts'
+import { Visits } from './collections/Visits'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -29,8 +30,11 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    components: {
+      beforeDashboard: ['/components/admin/TrafficStats#TrafficStats'],
+    },
   },
-  collections: [Users, Media, Videos, Projects, Pages, Contacts],
+  collections: [Users, Media, Videos, Projects, Pages, Contacts, Visits],
   globals: [SiteSettings, ContactSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

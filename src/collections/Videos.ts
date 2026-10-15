@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import path from 'node:path'
 import { adminOnly, staffOnly } from '../access'
 
 export const Videos: CollectionConfig = {
@@ -14,6 +15,7 @@ export const Videos: CollectionConfig = {
     },
     fields: [],
     upload: {
+        staticDir: path.resolve(process.cwd(), 'media/videos'),
         mimeTypes: ['video/mp4', 'video/webm'],
     },
 }
