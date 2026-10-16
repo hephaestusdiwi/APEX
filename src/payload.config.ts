@@ -32,6 +32,7 @@ export default buildConfig({
     },
     components: {
       beforeDashboard: ['/components/admin/TrafficStats#TrafficStats'],
+      beforeNavLinks: ['/components/admin/NewMessagesLink#NewMessagesLink'],
     },
   },
   collections: [Users, Media, Videos, Projects, Pages, Contacts, Visits],

@@ -21,7 +21,7 @@ const text = (formData: FormData, key: string): string => {
 }
 
 export async function submitContact(_prev: ContactState, formData: FormData): Promise<ContactState> {
-  if (text(formData, 'website')) return { ok: true }
+  if (text(formData, 'contact_check')) return { ok: true }
 
   const values = {
     name: text(formData, 'name'),

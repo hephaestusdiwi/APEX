@@ -110,8 +110,7 @@ export function ContactForm() {
 
       {/* Honeypot: tersembunyi untuk manusia dan screen reader. */}
       <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
-        <label htmlFor="website">Website</label>
-        <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+        <input id="contact-check" name="contact_check" type="text" tabIndex={-1} autoComplete="new-password" />
       </div>
 
       {state.message ? (

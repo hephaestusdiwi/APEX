@@ -62,6 +62,9 @@ export const Contacts: CollectionConfig = {
     useAsTitle: 'name',
     defaultColumns: ['name', 'email', 'subject', 'status', 'createdAt'],
     listSearchableFields: ['name', 'email', 'subject', 'message'],
+    components: {
+      beforeListTable: ['/components/admin/ContactsToolbar#ContactsToolbar'],
+    },
   },
   defaultSort: '-createdAt',
   access: {
