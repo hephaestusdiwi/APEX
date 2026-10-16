@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 import Image from 'next/image'
+import { LightboxLink } from '@/components/media/LightboxLink'
 import type { GalleryBlockData, GalleryVariant, MediaAsset } from '@/content/types'
 import { focalPosition } from '@/lib/focal'
 import { packMosaic } from '@/lib/mosaic'
@@ -49,14 +50,16 @@ function MosaicGallery({ images }: { images: MediaAsset[] }) {
                 style={{ '--ar': ratio, '--g': grow, order: index } as CSSProperties}
                 className="relative aspect-(--ar) overflow-hidden md:aspect-auto md:min-h-0 md:flex-(--g)"
               >
-                <Image
-                  src={image.src}
-                  alt={image.alt}
-                  fill
-                  sizes={sizes}
-                  className="object-cover"
-                  style={{ objectPosition: focalPosition(image) }}
-                />
+                <LightboxLink media={image} cropped>
+                  <Image
+                    src={image.src}
+                    alt={image.alt}
+                    fill
+                    sizes={sizes}
+                    className="object-cover"
+                    style={{ objectPosition: focalPosition(image) }}
+                  />
+                </LightboxLink>
               </div>
             )
           })}
@@ -76,14 +79,16 @@ export function GalleryView({ block }: { block: GalleryBlockData }) {
       <div className={CONTAINER[variant]}>
         {images.map((image, i) => (
           <div key={`${image.src}-${i}`} className="relative aspect-[10/7] overflow-hidden">
-            <Image
-              src={image.src}
-              alt={image.alt}
-              fill
-              sizes={SIZES[variant]}
-              className="object-cover"
-              style={{ objectPosition: focalPosition(image) }}
-            />
+            <LightboxLink media={image} cropped>
+              <Image
+                src={image.src}
+                alt={image.alt}
+                fill
+                sizes={SIZES[variant]}
+                className="object-cover"
+                style={{ objectPosition: focalPosition(image) }}
+              />
+            </LightboxLink>
           </div>
         ))}
       </div>
@@ -101,14 +106,16 @@ export function GalleryView({ block }: { block: GalleryBlockData }) {
             variant === 'staggered' && i % 2 === 1 ? 'md:mt-24' : '',
           ].join(' ')}
         >
-          <Image
-            src={image.src}
-            alt={image.alt}
-            width={image.width}
-            height={image.height}
-            sizes={SIZES[variant]}
-            className={isStrip ? 'h-[60vh] w-auto max-w-none' : 'h-auto w-full'}
-          />
+          <LightboxLink media={image}>
+            <Image
+              src={image.src}
+              alt={image.alt}
+              width={image.width}
+              height={image.height}
+              sizes={SIZES[variant]}
+              className={isStrip ? 'h-[60vh] w-auto max-w-none' : 'h-auto w-full'}
+            />
+          </LightboxLink>
         </div>
       ))}
     </div>

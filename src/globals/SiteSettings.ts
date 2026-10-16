@@ -16,6 +16,24 @@ export const SiteSettings: GlobalConfig = {
             required: true,
         },
         {
+            name: 'logo',
+            type: 'upload',
+            relationTo: 'media',
+            label: 'Logo',
+            admin: {
+                description: 'Opsional, kalau diisi header menampilkan logo dan menggantikan teks nama website',
+            },
+        },
+        {
+            name: 'photoSwipe',
+            type: 'checkbox',
+            label: 'Aktifkan PhotoSwipe',
+            defaultValue: true,
+            admin: {
+                description: 'Kalau aktif, gambar di halaman project dan halaman biasa bisa di klik untuk dibuka',
+            },
+        },
+        {
             name: 'navigation',
             type: 'array',
             label: { singular: 'Item', plural: 'Navigasi' },

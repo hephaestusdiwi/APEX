@@ -13,6 +13,8 @@ export type HomeHeroData = {
 
 export type SiteSettings = {
   siteName: string
+  logo: MediaAsset | null
+  photoSwipe: boolean
   navigation: { label: string; href: string }[]
   instagramUrl: string | null
   homeHero: HomeHeroData
@@ -25,6 +27,8 @@ export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
   const instagram = settings.instagramUrl?.trim()
   return {
     siteName: settings.siteName?.trim() || 'Portfolio',
+    logo: toMedia(settings.logo),
+    photoSwipe: settings.photoSwipe ?? true,
     navigation: (settings.navigation ?? [])
       .filter((item) => isSafeHref(item.href))
       .map(({ label, href }) => ({ label, href })),

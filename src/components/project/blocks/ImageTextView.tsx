@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { LightboxLink } from '@/components/media/LightboxLink'
 import type { ImageTextBlockData } from '@/content/types'
 import { ProjectMeta } from '../ProjectMeta'
 import { RichText } from './RichText'
@@ -11,14 +12,16 @@ export function ImageTextView({ block }: { block: ImageTextBlockData }) {
         {meta.length >  0 ? <ProjectMeta items={meta} /> : null}
         <RichText blocks={content} size="small" />
       </div>
-      <Image
-        src={media.src}
-        alt={media.alt}
-        width={media.width}
-        height={media.height}
-        sizes="(min-width: 768px) 37vw, 100vw"
-        className="h-auto w-full"
-      />
+      <LightboxLink media={media}>
+        <Image
+          src={media.src}
+          alt={media.alt}
+          width={media.width}
+          height={media.height}
+          sizes="(min-width: 768px) 37vw, 100vw"
+          className="h-auto w-full"
+        />
+      </LightboxLink>
     </div>
   )
 }

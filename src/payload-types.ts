@@ -1293,6 +1293,14 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 export interface SiteSetting {
   id: number;
   siteName: string;
+  /**
+   * Opsional, kalau diisi header menampilkan logo dan menggantikan teks nama website
+   */
+  logo?: (number | null) | Media;
+  /**
+   * Kalau aktif, gambar di halaman project dan halaman biasa bisa di klik untuk dibuka
+   */
+  photoSwipe?: boolean | null;
   navigation?:
     | {
         label: string;
@@ -1358,6 +1366,8 @@ export interface ContactSetting {
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
   siteName?: T;
+  logo?: T;
+  photoSwipe?: T;
   navigation?:
     | T
     | {

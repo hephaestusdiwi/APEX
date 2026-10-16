@@ -8,6 +8,7 @@ import { SiteHeader } from '@/components/site/SiteHeader'
 import { getSiteSettings } from '@/content/site'
 import './styles.css'
 import { Poppins } from 'next/font/google'
+import { Lightbox } from '@/components/media/Lightbox'
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -38,15 +39,16 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  const { siteName, navigation, instagramUrl } = await getSiteSettings()
+  const { siteName, logo, navigation, instagramUrl, photoSwipe } = await getSiteSettings()
 
   return (
     <html lang="en" className={poppins.variable}>
       <body className="relative flex min-h-screen flex-col">
         <MotionProvider />
         <PageViewTracker />
-        <SiteHeader siteName={siteName} navigation={navigation} />
+        <SiteHeader siteName={siteName} logo={logo} navigation={navigation} />
         <main className="flex-1">{children}</main>
+        {photoSwipe ? <Lightbox /> : null}
         <SiteFooter navigation={navigation} instagramUrl={instagramUrl} />
       </body>
     </html>
