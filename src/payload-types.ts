@@ -74,7 +74,10 @@ export interface Config {
     pages: Page;
     contacts: Contact;
     visits: Visit;
+    'editorial-reviews': EditorialReview;
+    'editorial-notes': EditorialNote;
     'payload-kv': PayloadKv;
+    'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -88,7 +91,10 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     contacts: ContactsSelect<false> | ContactsSelect<true>;
     visits: VisitsSelect<false> | VisitsSelect<true>;
+    'editorial-reviews': EditorialReviewsSelect<false> | EditorialReviewsSelect<true>;
+    'editorial-notes': EditorialNotesSelect<false> | EditorialNotesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
+    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -100,10 +106,12 @@ export interface Config {
   globals: {
     'site-settings': SiteSetting;
     'contact-settings': ContactSetting;
+    'workflow-settings': WorkflowSetting;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'contact-settings': ContactSettingsSelect<false> | ContactSettingsSelect<true>;
+    'workflow-settings': WorkflowSettingsSelect<false> | WorkflowSettingsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -111,7 +119,13 @@ export interface Config {
   };
   user: User;
   jobs: {
-    tasks: unknown;
+    tasks: {
+      schedulePublish: TaskSchedulePublish;
+      inline: {
+        input: unknown;
+        output: unknown;
+      };
+    };
     workflows: unknown;
   };
 }
@@ -694,6 +708,44 @@ export interface Visit {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "editorial-reviews".
+ */
+export interface EditorialReview {
+  id: number;
+  docCollection: 'projects' | 'pages';
+  docId: number;
+  status: 'draft' | 'in_review' | 'changes_requested' | 'approved';
+  reviewers?: (number | User)[] | null;
+  requestedBy?: (number | null) | User;
+  requestedAt?: string | null;
+  decidedBy?: (number | null) | User;
+  decidedAt?: string | null;
+  /**
+   * Sidik jari isi konten saat disetujui; berubah berarti ada edit setelah persetujuan.
+   */
+  approvedFingerprint?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "editorial-notes".
+ */
+export interface EditorialNote {
+  id: number;
+  docCollection: 'projects' | 'pages';
+  docId: number;
+  author: number | User;
+  kind: 'comment' | 'review' | 'system';
+  body: string;
+  resolved?: boolean | null;
+  resolvedBy?: (number | null) | User;
+  resolvedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -708,6 +760,98 @@ export interface PayloadKv {
     | number
     | boolean
     | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs".
+ */
+export interface PayloadJob {
+  id: number;
+  /**
+   * Input data provided to the job
+   */
+  input?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  taskStatus?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  completedAt?: string | null;
+  totalTried?: number | null;
+  /**
+   * If hasError is true this job will not be retried
+   */
+  hasError?: boolean | null;
+  /**
+   * If hasError is true, this is the error that caused it
+   */
+  error?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Task execution log
+   */
+  log?:
+    | {
+        executedAt: string;
+        completedAt: string;
+        taskSlug: 'inline' | 'schedulePublish';
+        taskID: string;
+        input?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        output?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        state: 'failed' | 'succeeded';
+        error?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  taskSlug?: ('inline' | 'schedulePublish') | null;
+  queue?: string | null;
+  waitUntil?: string | null;
+  processing?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -743,6 +887,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'visits';
         value: number | Visit;
+      } | null)
+    | ({
+        relationTo: 'editorial-reviews';
+        value: number | EditorialReview;
+      } | null)
+    | ({
+        relationTo: 'editorial-notes';
+        value: number | EditorialNote;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1248,11 +1400,75 @@ export interface VisitsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "editorial-reviews_select".
+ */
+export interface EditorialReviewsSelect<T extends boolean = true> {
+  docCollection?: T;
+  docId?: T;
+  status?: T;
+  reviewers?: T;
+  requestedBy?: T;
+  requestedAt?: T;
+  decidedBy?: T;
+  decidedAt?: T;
+  approvedFingerprint?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "editorial-notes_select".
+ */
+export interface EditorialNotesSelect<T extends boolean = true> {
+  docCollection?: T;
+  docId?: T;
+  author?: T;
+  kind?: T;
+  body?: T;
+  resolved?: T;
+  resolvedBy?: T;
+  resolvedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
   key?: T;
   data?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs_select".
+ */
+export interface PayloadJobsSelect<T extends boolean = true> {
+  input?: T;
+  taskStatus?: T;
+  completedAt?: T;
+  totalTried?: T;
+  hasError?: T;
+  error?: T;
+  log?:
+    | T
+    | {
+        executedAt?: T;
+        completedAt?: T;
+        taskSlug?: T;
+        taskID?: T;
+        input?: T;
+        output?: T;
+        state?: T;
+        error?: T;
+        id?: T;
+      };
+  taskSlug?: T;
+  queue?: T;
+  waitUntil?: T;
+  processing?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1362,6 +1578,23 @@ export interface ContactSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "workflow-settings".
+ */
+export interface WorkflowSetting {
+  id: number;
+  /**
+   * Aktif: editor hanya bisa mempublikasikan (termasuk lewat jadwal) konten yang sudah disetujui dan tidak berubah sesudahnya. Admin selalu boleh.
+   */
+  requireApproval?: boolean | null;
+  /**
+   * Email ke reviewer saat review diminta, dan ke peminta saat ada keputusan atau catatan baru.
+   */
+  notifyByEmail?: boolean | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
@@ -1413,6 +1646,17 @@ export interface ContactSettingsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "workflow-settings_select".
+ */
+export interface WorkflowSettingsSelect<T extends boolean = true> {
+  requireApproval?: T;
+  notifyByEmail?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections_widget".
  */
 export interface CollectionsWidget {
@@ -1420,6 +1664,31 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSchedulePublish".
+ */
+export interface TaskSchedulePublish {
+  input: {
+    type?: ('publish' | 'unpublish') | null;
+    locale?: string | null;
+    doc?:
+      | ({
+          relationTo: 'projects';
+          value: number | Project;
+        } | null)
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null);
+    global?: string | null;
+    user?: {
+      relationTo: 'users';
+      value: number | User;
+    } | null;
+  };
+  output?: unknown;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

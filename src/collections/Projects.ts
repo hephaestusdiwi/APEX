@@ -6,6 +6,7 @@ import { validateSlots } from '@/blocks/Slots'
 import { slugField } from '../fields/slug'
 import { seoField } from '../fields/seo'
 import { previewLinkEndpoint } from '../preview/endpoint'
+import { afterDeleteCleanup, afterPublish, publishGate } from '../editorial/hooks'
 import { use } from 'react'
 import { sign } from 'crypto'
 
@@ -23,7 +24,8 @@ export const Projects: CollectionConfig = {
   },
   endpoints: [previewLinkEndpoint('projects')],
   versions: {
-    drafts: true,
+    // Jadwal publikasi bawaan Payload (tombol Publish > Schedule).
+    drafts: { schedulePublish: { timeFormat: 'HH:mm', timeIntervals: 15 } },
     maxPerDoc: 25,
   },
   access: {
@@ -31,6 +33,12 @@ export const Projects: CollectionConfig = {
     create: staffOnly,
     update: staffOnly,
     delete: adminOnly,
+  },
+  hooks: {
+    // Workflow editorial: gerbang persetujuan, jejak publikasi, dan pembersihan catatan saat dokumen dihapus.
+    beforeChange: [publishGate('projects')],
+    afterChange: [afterPublish('projects')],
+    afterDelete: [afterDeleteCleanup('projects')],
   },
   fields: [
     { name: 'title', type: 'text', required: true },
@@ -116,6 +124,14 @@ export const Projects: CollectionConfig = {
       type: 'ui',
       label: 'Preview',
       admin: { components: { Cell: '/components/admin/PreviewCell#PreviewCell' } },
+    },
+    {
+      name: 'editorial',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: { Field: '/components/admin/EditorialPanel#EditorialPanel' },
+      },
     },
     seoField(),
   ],

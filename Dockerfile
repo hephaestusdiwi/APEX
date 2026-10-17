@@ -23,6 +23,9 @@ COPY . .
 # Create public directory if it does not exist
 RUN mkdir -p public
 
+# Generate Payload's component map before Next.js bundles the admin panel.
+RUN npm run generate:importmap
+
 # Build optimized Next.js standalone output
 RUN npm run build
 

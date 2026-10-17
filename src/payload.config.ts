@@ -15,6 +15,10 @@ import { Projects } from './collections/Projects'
 import { Videos } from './collections/Videos'
 import { Contacts } from './collections/Contacts'
 import { Visits } from './collections/Visits'
+import { EditorialReviews } from './collections/EditorialReviews'
+import { EditorialNotes } from './collections/EditorialNotes'
+import { WorkflowSettings } from './globals/WorkflowSettings'
+import { editorialEndpoints } from './editorial/endpoints'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -31,12 +35,22 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
     components: {
-      beforeDashboard: ['/components/admin/TrafficStats#TrafficStats'],
+      beforeDashboard: [
+        '/components/admin/EditorialQueue#EditorialQueue',
+      ],
       beforeNavLinks: ['/components/admin/NewMessagesLink#NewMessagesLink'],
+      views: {
+        dashboard: { Component: '/components/admin/Dashboard#Dashboard' },
+      },
     },
   },
-  collections: [Users, Media, Videos, Projects, Pages, Contacts, Visits],
-  globals: [SiteSettings, ContactSettings],
+  collections: [Users, Media, Videos, Projects, Pages, Contacts, Visits, EditorialReviews, EditorialNotes],
+  globals: [SiteSettings, ContactSettings, WorkflowSettings],
+  endpoints: editorialEndpoints,
+  jobs: {
+    autoRun: [{ cron: '* * * * *', limit: 10, queue: 'default' }],
+    shouldAutoRun: () => process.env.JOBS_AUTORUN !== 'false',
+  },
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   cors: allowedOrigins,

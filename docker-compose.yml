@@ -21,6 +21,8 @@ services:
       start_period: 10s
 
   app:
+    build:
+      context: .
     image: apex:latest
     container_name: apex_app
     restart: unless-stopped
