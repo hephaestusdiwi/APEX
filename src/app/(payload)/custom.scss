@@ -538,8 +538,8 @@
   }
 }
 
-/* APEX styling for the Projects collection list and document editor only. */
-:where(.collection-list--projects, .collection-edit--projects) {
+/* APEX styling for the Projects collection and Site Settings admin screens only. */
+:where(.collection-list--projects, .collection-edit--projects, .global-edit--site-settings) {
   --apex-bg: #0d0e11;
   --apex-surface: #15171c;
   --apex-surface-2: #1d2027;
@@ -619,7 +619,8 @@
   }
 }
 
-.collection-edit--projects {
+.collection-edit--projects,
+.global-edit--site-settings {
   min-height: calc(100vh - 100px);
   padding: clamp(16px, 2.5vw, 32px);
   border: 1px solid var(--apex-border);
